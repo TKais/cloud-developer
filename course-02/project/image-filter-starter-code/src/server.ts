@@ -37,20 +37,20 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   } );
 
   app.get('/filteredimage/', async(req:Request, res:Response) => {
-    // const image_query:string = req.query.image_url;
-    // const localFiles:Array<string> = [];
-    // if(!image_query) {
-    //   return res.status(204).send('No image_url provided');
-    // }
+    const image_query:string = req.query.image_url;
+    const localFiles:Array<string> = [];
+    if(!image_query) {
+      return res.status(204).send('No image_url provided');
+    }
 
-    // try {
-    //   const filteredImage:string = await filterImageFromURL(image_query);
-    //   localFiles.push(filteredImage);
-    //   res.status(200).sendFile(filteredImage, () => deleteLocalFiles(localFiles));
-    // } catch(e) {
-    //   console.error(e);
-    //   res.status(404).send(`The following error has occurred: ${e}`);
-    // }
+    try {
+      const filteredImage:string = await filterImageFromURL(image_query);
+      localFiles.push(filteredImage);
+      res.status(200).sendFile(filteredImage, () => deleteLocalFiles(localFiles));
+    } catch(e) {
+      console.error(e);
+      res.status(404).send(`The following error has occurred: ${e}`);
+    }
   });
 
   // Start the Server
