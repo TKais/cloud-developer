@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
 
@@ -17,7 +17,6 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   // GET /filteredimage?image_url={{URL}}
   // endpoint to filter an image from a public url.
   // IT SHOULD
-  //    1
   //    1. validate the image_url query
   //    2. call filterImageFromURL(image_url) to filter the image
   //    3. send the resulting file in the response
@@ -33,10 +32,26 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   
   // Root Endpoint
   // Displays a simple message to the user
-  app.get( "/", async ( req, res ) => {
+  app.get( '/', async ( req:Request, res:Response ) => {
     res.send("try GET /filteredimage?image_url={{}}")
   } );
-  
+
+  app.get('/filteredimage/', async(req:Request, res:Response) => {
+    const image_query:string = req.query.image_url;
+    const localFiles:Array<string> = [];
+    if(!image_query) {
+      return res.status(204).send('No image_url provided');
+    }
+
+    try {
+      const filteredImage:string = await filterImageFromURL(image_query);
+      localFiles.push(filteredImage);
+      res.status(200).sendFile(filteredImage, () => deleteLocalFiles(localFiles));
+    } catch(e) {
+      console.error(e);
+      res.status(404).send(`The following error has occurred: ${e}`);
+    }
+  });
 
   // Start the Server
   app.listen( port, () => {
